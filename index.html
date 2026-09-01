@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Deporte — dashboard</title>
+<style>
+  :root { color-scheme: light dark;
+    --surface:#fcfcfb; --plano:#f9f9f7; --ink:#0b0b0b; --ink2:#52514e;
+    --muted:#898781; --grid:#e1e0d9; --borde:rgba(11,11,11,.10); --c-0:#2a78d6;--c-1:#008300;--c-2:#e87ba4;--c-3:#eda100; }
+  @media (prefers-color-scheme: dark) { :root {
+    --surface:#1a1a19; --plano:#0d0d0d; --ink:#ffffff; --ink2:#c3c2b7;
+    --muted:#898781; --grid:#2c2c2a; --borde:rgba(255,255,255,.10); --c-0:#3987e5;--c-1:#008300;--c-2:#d55181;--c-3:#c98500; } }
+  * { box-sizing:border-box }
+  body { margin:0; background:var(--plano); color:var(--ink);
+    font:14px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif; }
+  header { padding:24px 32px 4px } h1 { margin:0; font-size:20px }
+  .sub { color:var(--ink2); font-size:13px; margin-top:2px }
+  main { max-width:960px; margin:0 auto; padding:16px 32px 48px;
+    display:flex; flex-direction:column; gap:16px }
+  .card { background:var(--surface); border:1px solid var(--borde);
+    border-radius:10px; padding:16px 20px }
+  .card h2 { margin:0 0 12px; font-size:13px; font-weight:600; color:var(--ink2) }
+  .kpis { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:16px }
+  .kpi .lab { font-size:12px; color:var(--ink2) }
+  .kpi .val { font-size:34px; font-weight:600; margin-top:2px }
+  .kpi .delta { font-size:12px; color:var(--ink2) }
+  .delta.up { color:#0ca30c } .delta.down { color:#d03b3b }
+  .leyenda { display:flex; flex-wrap:wrap; gap:12px; margin-bottom:10px }
+  .lg { display:inline-flex; align-items:center; gap:6px; font-size:12px; color:var(--ink2) }
+  .chip { width:10px; height:10px; border-radius:3px; display:inline-block; flex:none; margin-right:2px }
+  .grafico { display:flex; align-items:flex-end; gap:6px; height:212px;
+    border-bottom:1px solid var(--grid); padding-bottom:0 }
+  .col { flex:1; display:flex; flex-direction:column; justify-content:flex-end; min-width:0 }
+  .pila { display:flex; flex-direction:column; justify-content:flex-end; gap:2px }
+  .seg { width:100%; max-width:24px; margin:0 auto; border-radius:0 }
+  .pila .seg:first-child { border-radius:4px 4px 0 0 }
+  .eje-x { font-size:10px; color:var(--muted); text-align:center; height:16px; padding-top:4px }
+  .dfila { display:grid; grid-template-columns:130px 1fr 52px; gap:10px;
+    align-items:center; margin:7px 0 }
+  .dnombre { font-size:13px; color:var(--ink); display:flex; align-items:center; gap:6px;
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
+  .dbarra { height:14px }
+  .dfill { height:100%; border-radius:0 4px 4px 0; min-width:3px }
+  .dval { font-size:12px; color:var(--ink2); text-align:right;
+    font-variant-numeric:tabular-nums }
+  .cal-wrap { display:flex; gap:5px; align-items:flex-start; overflow-x:auto }
+  .cal-dias { display:flex; flex-direction:column; gap:3px; padding-top:20px; flex:none }
+  .cal-dias span { width:12px; height:14px; font-size:10px; color:var(--muted);
+    line-height:14px; text-align:right; flex:none }
+  .cal-grid { display:flex; flex-direction:column; gap:2px }
+  .cal-meses { display:flex; gap:3px; height:18px }
+  .cal-mes { width:14px; font-size:10px; color:var(--muted); white-space:nowrap;
+    overflow:visible; line-height:18px }
+  .cal { display:flex; gap:3px }
+  .ccol { display:flex; flex-direction:column; gap:3px }
+  .celda { width:14px; height:14px; border-radius:3px }
+  .celda.cero { background:var(--grid) }
+  .celda.vacia { background:transparent }
+  .calpie { display:flex; align-items:center; gap:4px; margin-top:8px;
+    font-size:11px; color:var(--muted) }
+  .calpie .celda { width:11px; height:11px }
+  table { width:100%; border-collapse:collapse; font-size:13px }
+  th { text-align:left; color:var(--ink2); font-weight:600; font-size:12px;
+    border-bottom:1px solid var(--grid); padding:6px 8px }
+  td { padding:6px 8px; border-bottom:1px solid var(--grid) }
+  td.num { text-align:right; font-variant-numeric:tabular-nums }
+  #tip { position:fixed; pointer-events:none; background:var(--ink); color:var(--plano);
+    font-size:12px; padding:5px 9px; border-radius:6px; opacity:0; transition:opacity .1s;
+    z-index:10; max-width:260px }
+  .vacio { color:var(--ink2); text-align:center; padding:32px 0 }
+</style></head>
+<body>
+<header><h1>Deporte</h1>
+<div class="sub">9 sesiones registradas · generado el 01/09/2026 desde Deporte.md</div></header>
+<main>
+  <div class="card"><div class="kpis">
+    <div class="kpi"><div class="lab">Sesiones · últimos 30 días</div><div class="val">3</div>
+      <div class="delta down">-3 vs 30 días previos</div></div>
+    <div class="kpi"><div class="lab">Minutos · últimos 30 días</div><div class="val">137</div>
+      <div class="delta">2.3 horas</div></div>
+    <div class="kpi"><div class="lab">Racha de semanas activas</div><div class="val">0</div>
+      <div class="delta">semanas seguidas con actividad</div></div>
+    <div class="kpi"><div class="lab">Deporte principal</div><div class="val" style="font-size:22px;padding-top:8px">Tenis</div>
+      <div class="delta">6.2 h en total</div></div>
+  </div></div>
+
+  <div class="card"><h2>Volumen semanal (últimas 16 semanas, minutos)</h2>
+    <div class="leyenda"><span class="lg"><span class="chip" style="background:var(--c-0)"></span>Body Pump</span><span class="lg"><span class="chip" style="background:var(--c-1)"></span>Carrera</span><span class="lg"><span class="chip" style="background:var(--c-2)"></span>FCT</span><span class="lg"><span class="chip" style="background:var(--c-3)"></span>Tenis</span></div>
+    <div class="grafico"><div class="col"><div class="pila" data-tip="Semana del 18/05: 0 min"></div><div class="eje-x"></div></div><div class="col"><div class="pila" data-tip="Semana del 25/05: 0 min"></div><div class="eje-x">25/05</div></div><div class="col"><div class="pila" data-tip="Semana del 01/06: 0 min"></div><div class="eje-x"></div></div><div class="col"><div class="pila" data-tip="Semana del 08/06: 0 min"></div><div class="eje-x">08/06</div></div><div class="col"><div class="pila" data-tip="Semana del 15/06: 0 min"></div><div class="eje-x"></div></div><div class="col"><div class="pila" data-tip="Semana del 22/06: 0 min"></div><div class="eje-x">22/06</div></div><div class="col"><div class="pila" data-tip="Semana del 29/06: 0 min"></div><div class="eje-x"></div></div><div class="col"><div class="pila" data-tip="Semana del 06/07: 0 min"></div><div class="eje-x">06/07</div></div><div class="col"><div class="pila" data-tip="Semana del 13/07: 255 min"><div class="seg" data-dep="Tenis" data-tip="Tenis: 135 min (semana del 13/07)" style="height:95px;background:var(--c-3)"></div><div class="seg" data-dep="FCT" data-tip="FCT: 60 min (semana del 13/07)" style="height:42px;background:var(--c-2)"></div><div class="seg" data-dep="Body Pump" data-tip="Body Pump: 60 min (semana del 13/07)" style="height:42px;background:var(--c-0)"></div></div><div class="eje-x"></div></div><div class="col"><div class="pila" data-tip="Semana del 20/07: 0 min"></div><div class="eje-x">20/07</div></div><div class="col"><div class="pila" data-tip="Semana del 27/07: 120 min"><div class="seg" data-dep="Tenis" data-tip="Tenis: 120 min (semana del 27/07)" style="height:85px;background:var(--c-3)"></div></div><div class="eje-x"></div></div><div class="col"><div class="pila" data-tip="Semana del 03/08: 0 min"></div><div class="eje-x">03/08</div></div><div class="col"><div class="pila" data-tip="Semana del 10/08: 0 min"></div><div class="eje-x"></div></div><div class="col"><div class="pila" data-tip="Semana del 17/08: 120 min"><div class="seg" data-dep="Tenis" data-tip="Tenis: 120 min (semana del 17/08)" style="height:85px;background:var(--c-3)"></div></div><div class="eje-x">17/08</div></div><div class="col"><div class="pila" data-tip="Semana del 24/08: 17 min"><div class="seg" data-dep="Carrera" data-tip="Carrera: 17 min (semana del 24/08)" style="height:12px;background:var(--c-1)"></div></div><div class="eje-x"></div></div><div class="col"><div class="pila" data-tip="Semana del 31/08: 0 min"></div><div class="eje-x">31/08</div></div></div></div>
+
+  <div class="card"><h2>Distribución por deporte (horas totales)</h2><div class="dfila" data-tip="Tenis: 375 min en total"><div class="dnombre"><span class="chip" style="background:var(--c-3)"></span>Tenis</div><div class="dbarra"><div class="dfill" style="width:100.0%;background:var(--c-3)"></div></div><div class="dval">6.2 h</div></div><div class="dfila" data-tip="Body Pump: 60 min en total"><div class="dnombre"><span class="chip" style="background:var(--c-0)"></span>Body Pump</div><div class="dbarra"><div class="dfill" style="width:16.0%;background:var(--c-0)"></div></div><div class="dval">1.0 h</div></div><div class="dfila" data-tip="FCT: 60 min en total"><div class="dnombre"><span class="chip" style="background:var(--c-2)"></span>FCT</div><div class="dbarra"><div class="dfill" style="width:16.0%;background:var(--c-2)"></div></div><div class="dval">1.0 h</div></div><div class="dfila" data-tip="Carrera: 17 min en total"><div class="dnombre"><span class="chip" style="background:var(--c-1)"></span>Carrera</div><div class="dbarra"><div class="dfill" style="width:4.5%;background:var(--c-1)"></div></div><div class="dval">0.3 h</div></div></div>
+
+  <div class="card"><h2>Calendario de actividad (últimas 20 semanas)</h2>
+    <div class="cal-wrap">
+      <div class="cal-dias"><span>L</span><span>M</span><span>X</span><span>J</span><span>V</span><span>S</span><span>D</span></div>
+      <div class="cal-grid">
+        <div class="cal-meses"><div class="cal-mes">abr</div><div class="cal-mes"></div><div class="cal-mes">may</div><div class="cal-mes"></div><div class="cal-mes"></div><div class="cal-mes"></div><div class="cal-mes">jun</div><div class="cal-mes"></div><div class="cal-mes"></div><div class="cal-mes"></div><div class="cal-mes"></div><div class="cal-mes">jul</div><div class="cal-mes"></div><div class="cal-mes"></div><div class="cal-mes"></div><div class="cal-mes">ago</div><div class="cal-mes"></div><div class="cal-mes"></div><div class="cal-mes"></div><div class="cal-mes"></div></div>
+        <div class="cal"><div class="ccol"><div class="celda cero" data-tip="20/04/2026: descanso"></div><div class="celda cero" data-tip="21/04/2026: descanso"></div><div class="celda cero" data-tip="22/04/2026: descanso"></div><div class="celda cero" data-tip="23/04/2026: descanso"></div><div class="celda cero" data-tip="24/04/2026: descanso"></div><div class="celda cero" data-tip="25/04/2026: descanso"></div><div class="celda cero" data-tip="26/04/2026: descanso"></div></div><div class="ccol"><div class="celda cero" data-tip="27/04/2026: descanso"></div><div class="celda cero" data-tip="28/04/2026: descanso"></div><div class="celda cero" data-tip="29/04/2026: descanso"></div><div class="celda cero" data-tip="30/04/2026: descanso"></div><div class="celda cero" data-tip="01/05/2026: descanso"></div><div class="celda cero" data-tip="02/05/2026: descanso"></div><div class="celda cero" data-tip="03/05/2026: descanso"></div></div><div class="ccol"><div class="celda cero" data-tip="04/05/2026: descanso"></div><div class="celda cero" data-tip="05/05/2026: descanso"></div><div class="celda cero" data-tip="06/05/2026: descanso"></div><div class="celda cero" data-tip="07/05/2026: descanso"></div><div class="celda cero" data-tip="08/05/2026: descanso"></div><div class="celda cero" data-tip="09/05/2026: descanso"></div><div class="celda cero" data-tip="10/05/2026: descanso"></div></div><div class="ccol"><div class="celda cero" data-tip="11/05/2026: descanso"></div><div class="celda cero" data-tip="12/05/2026: descanso"></div><div class="celda cero" data-tip="13/05/2026: descanso"></div><div class="celda cero" data-tip="14/05/2026: descanso"></div><div class="celda cero" data-tip="15/05/2026: descanso"></div><div class="celda cero" data-tip="16/05/2026: descanso"></div><div class="celda cero" data-tip="17/05/2026: descanso"></div></div><div class="ccol"><div class="celda cero" data-tip="18/05/2026: descanso"></div><div class="celda cero" data-tip="19/05/2026: descanso"></div><div class="celda cero" data-tip="20/05/2026: descanso"></div><div class="celda cero" data-tip="21/05/2026: descanso"></div><div class="celda cero" data-tip="22/05/2026: descanso"></div><div class="celda cero" data-tip="23/05/2026: descanso"></div><div class="celda cero" data-tip="24/05/2026: descanso"></div></div><div class="ccol"><div class="celda cero" data-tip="25/05/2026: descanso"></div><div class="celda cero" data-tip="26/05/2026: descanso"></div><div class="celda cero" data-tip="27/05/2026: descanso"></div><div class="celda cero" data-tip="28/05/2026: descanso"></div><div class="celda cero" data-tip="29/05/2026: descanso"></div><div class="celda cero" data-tip="30/05/2026: descanso"></div><div class="celda cero" data-tip="31/05/2026: descanso"></div></div><div class="ccol"><div class="celda cero" data-tip="01/06/2026: descanso"></div><div class="celda cero" data-tip="02/06/2026: descanso"></div><div class="celda cero" data-tip="03/06/2026: descanso"></div><div class="celda cero" data-tip="04/06/2026: descanso"></div><div class="celda cero" data-tip="05/06/2026: descanso"></div><div class="celda cero" data-tip="06/06/2026: descanso"></div><div class="celda cero" data-tip="07/06/2026: descanso"></div></div><div class="ccol"><div class="celda cero" data-tip="08/06/2026: descanso"></div><div class="celda cero" data-tip="09/06/2026: descanso"></div><div class="celda cero" data-tip="10/06/2026: descanso"></div><div class="celda cero" data-tip="11/06/2026: descanso"></div><div class="celda cero" data-tip="12/06/2026: descanso"></div><div class="celda cero" data-tip="13/06/2026: descanso"></div><div class="celda cero" data-tip="14/06/2026: descanso"></div></div><div class="ccol"><div class="celda cero" data-tip="15/06/2026: descanso"></div><div class="celda cero" data-tip="16/06/2026: descanso"></div><div class="celda cero" data-tip="17/06/2026: descanso"></div><div class="celda cero" data-tip="18/06/2026: descanso"></div><div class="celda cero" data-tip="19/06/2026: descanso"></div><div class="celda cero" data-tip="20/06/2026: descanso"></div><div class="celda cero" data-tip="21/06/2026: descanso"></div></div><div class="ccol"><div class="celda cero" data-tip="22/06/2026: descanso"></div><div class="celda cero" data-tip="23/06/2026: descanso"></div><div class="celda cero" data-tip="24/06/2026: descanso"></div><div class="celda cero" data-tip="25/06/2026: descanso"></div><div class="celda cero" data-tip="26/06/2026: descanso"></div><div class="celda cero" data-tip="27/06/2026: descanso"></div><div class="celda cero" data-tip="28/06/2026: descanso"></div></div><div class="ccol"><div class="celda cero" data-tip="29/06/2026: descanso"></div><div class="celda cero" data-tip="30/06/2026: descanso"></div><div class="celda cero" data-tip="01/07/2026: descanso"></div><div class="celda cero" data-tip="02/07/2026: descanso"></div><div class="celda cero" data-tip="03/07/2026: descanso"></div><div class="celda cero" data-tip="04/07/2026: descanso"></div><div class="celda cero" data-tip="05/07/2026: descanso"></div></div><div class="ccol"><div class="celda cero" data-tip="06/07/2026: descanso"></div><div class="celda cero" data-tip="07/07/2026: descanso"></div><div class="celda cero" data-tip="08/07/2026: descanso"></div><div class="celda cero" data-tip="09/07/2026: descanso"></div><div class="celda cero" data-tip="10/07/2026: descanso"></div><div class="celda cero" data-tip="11/07/2026: descanso"></div><div class="celda cero" data-tip="12/07/2026: descanso"></div></div><div class="ccol"><div class="celda cero" data-tip="13/07/2026: descanso"></div><div class="celda" data-tip="14/07/2026: 135 min" style="background:#0d366b"></div><div class="celda cero" data-tip="15/07/2026: descanso"></div><div class="celda cero" data-tip="16/07/2026: descanso"></div><div class="celda" data-tip="17/07/2026: 60 min" style="background:#3987e5"></div><div class="celda cero" data-tip="18/07/2026: descanso"></div><div class="celda" data-tip="19/07/2026: 60 min" style="background:#3987e5"></div></div><div class="ccol"><div class="celda cero" data-tip="20/07/2026: descanso"></div><div class="celda cero" data-tip="21/07/2026: descanso"></div><div class="celda cero" data-tip="22/07/2026: descanso"></div><div class="celda cero" data-tip="23/07/2026: descanso"></div><div class="celda cero" data-tip="24/07/2026: descanso"></div><div class="celda cero" data-tip="25/07/2026: descanso"></div><div class="celda cero" data-tip="26/07/2026: descanso"></div></div><div class="ccol"><div class="celda cero" data-tip="27/07/2026: descanso"></div><div class="celda cero" data-tip="28/07/2026: descanso"></div><div class="celda cero" data-tip="29/07/2026: descanso"></div><div class="celda" data-tip="30/07/2026: 60 min" style="background:#3987e5"></div><div class="celda" data-tip="31/07/2026: 60 min" style="background:#3987e5"></div><div class="celda cero" data-tip="01/08/2026: descanso"></div><div class="celda cero" data-tip="02/08/2026: descanso"></div></div><div class="ccol"><div class="celda cero" data-tip="03/08/2026: descanso"></div><div class="celda cero" data-tip="04/08/2026: descanso"></div><div class="celda cero" data-tip="05/08/2026: descanso"></div><div class="celda cero" data-tip="06/08/2026: descanso"></div><div class="celda cero" data-tip="07/08/2026: descanso"></div><div class="celda cero" data-tip="08/08/2026: descanso"></div><div class="celda cero" data-tip="09/08/2026: descanso"></div></div><div class="ccol"><div class="celda cero" data-tip="10/08/2026: descanso"></div><div class="celda cero" data-tip="11/08/2026: descanso"></div><div class="celda cero" data-tip="12/08/2026: descanso"></div><div class="celda cero" data-tip="13/08/2026: descanso"></div><div class="celda cero" data-tip="14/08/2026: descanso"></div><div class="celda cero" data-tip="15/08/2026: descanso"></div><div class="celda cero" data-tip="16/08/2026: descanso"></div></div><div class="ccol"><div class="celda cero" data-tip="17/08/2026: descanso"></div><div class="celda" data-tip="18/08/2026: 60 min" style="background:#3987e5"></div><div class="celda" data-tip="19/08/2026: 60 min" style="background:#3987e5"></div><div class="celda cero" data-tip="20/08/2026: descanso"></div><div class="celda cero" data-tip="21/08/2026: descanso"></div><div class="celda cero" data-tip="22/08/2026: descanso"></div><div class="celda cero" data-tip="23/08/2026: descanso"></div></div><div class="ccol"><div class="celda cero" data-tip="24/08/2026: descanso"></div><div class="celda cero" data-tip="25/08/2026: descanso"></div><div class="celda cero" data-tip="26/08/2026: descanso"></div><div class="celda cero" data-tip="27/08/2026: descanso"></div><div class="celda cero" data-tip="28/08/2026: descanso"></div><div class="celda cero" data-tip="29/08/2026: descanso"></div><div class="celda" data-tip="30/08/2026: 17 min" style="background:#9ec5f4"></div></div><div class="ccol"><div class="celda cero" data-tip="31/08/2026: descanso"></div><div class="celda cero" data-tip="01/09/2026: descanso"></div><div class="celda vacia"></div><div class="celda vacia"></div><div class="celda vacia"></div><div class="celda vacia"></div><div class="celda vacia"></div></div></div>
+      </div>
+    </div>
+    <div class="calpie">menos <span class="celda cero"></span><span class="celda" style="background:#cde2fb"></span><span class="celda" style="background:#9ec5f4"></span><span class="celda" style="background:#6da7ec"></span><span class="celda" style="background:#3987e5"></span><span class="celda" style="background:#256abf"></span><span class="celda" style="background:#184f95"></span><span class="celda" style="background:#0d366b"></span> más</div></div>
+
+  <div class="card"><h2>Registro completo</h2>
+    <table><thead><tr><th>Fecha</th><th>Deporte</th><th style="text-align:right">Min</th><th>Notas</th></tr></thead>
+    <tbody><tr><td>2026-08-30</td><td><span class="chip" style="background:var(--c-1)"></span>Carrera</td><td class="num">17</td><td>3 km. Sensaciones buenas; leve molestia cadera al final y cintilla iliotibial cargada</td></tr><tr><td>2026-08-19</td><td><span class="chip" style="background:var(--c-3)"></span>Tenis</td><td class="num">60</td><td>Partido competido (con molestia de hombro/saque)</td></tr><tr><td>2026-08-18</td><td><span class="chip" style="background:var(--c-3)"></span>Tenis</td><td class="num">60</td><td></td></tr><tr><td>2026-07-31</td><td><span class="chip" style="background:var(--c-3)"></span>Tenis</td><td class="num">60</td><td></td></tr><tr><td>2026-07-30</td><td><span class="chip" style="background:var(--c-3)"></span>Tenis</td><td class="num">60</td><td></td></tr><tr><td>2026-07-19</td><td><span class="chip" style="background:var(--c-3)"></span>Tenis</td><td class="num">60</td><td></td></tr><tr><td>2026-07-17</td><td><span class="chip" style="background:var(--c-2)"></span>FCT</td><td class="num">60</td><td>Entrenamiento funcional</td></tr><tr><td>2026-07-14</td><td><span class="chip" style="background:var(--c-3)"></span>Tenis</td><td class="num">75</td><td>Ranking de los Almendros</td></tr><tr><td>2026-07-14</td><td><span class="chip" style="background:var(--c-0)"></span>Body Pump</td><td class="num">60</td><td>Por la mañana (10-11h)</td></tr></tbody></table></div>
+</main>
+<div id="tip"></div>
+<script>
+  const calWrap = document.querySelector(".cal-wrap");
+  if (calWrap) calWrap.scrollLeft = calWrap.scrollWidth;
+  const tip = document.getElementById("tip");
+  document.querySelectorAll("[data-tip]").forEach(el => {
+    el.addEventListener("mousemove", e => {
+      tip.textContent = el.dataset.tip; tip.style.opacity = 1;
+      tip.style.left = Math.min(e.clientX + 12, innerWidth - 270) + "px";
+      tip.style.top = (e.clientY + 14) + "px";
+    });
+    el.addEventListener("mouseleave", () => tip.style.opacity = 0);
+  });
+</script>
+</body></html>
